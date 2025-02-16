@@ -49,6 +49,12 @@
                                         >
                                             Edit
                                         </button>
+                                        <button
+                                            @click="removeTask(task)"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            Delete
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -67,12 +73,29 @@
         aria-labelledby="taskModalLabel"
         aria-hidden="true"
     >
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div
+            :class="[
+                'modal-dialog',
+                'modal-dialog-centered',
+                !deleteMode ? 'modal-lg' : 'modal-sm',
+            ]"
+        >
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="taskModalLabel">
+                    <h5
+                        class="modal-title"
+                        id="taskModalLabel"
+                        v-show="!deleteMode"
+                    >
                         {{ !editMode ? "Create New Task" : "Update Task" }}
-                    </h1>
+                    </h5>
+                    <h5
+                        class="modal-title"
+                        id="taskModalLabel"
+                        v-show="deleteMode"
+                    >
+                        Delete Task
+                    </h5>
                     <button
                         type="button"
                         class="btn-close"
@@ -81,7 +104,7 @@
                     ></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="row" v-show="!deleteMode">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="title">Title</label>
@@ -130,7 +153,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" v-show="!deleteMode">
                         <div class="col-md-12">
                             <div class="from-group">
                                 <label for="detail">Detail</label>
@@ -142,8 +165,12 @@
                             </div>
                         </div>
                     </div>
+
+                    <h5 class="text-center" v-show="deleteMode">
+                        Do you want to delete this task?
+                    </h5>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" v-show="!deleteMode">
                     <button
                         type="button"
                         class="btn btn-secondary"
@@ -159,6 +186,22 @@
                         {{ !editMode ? "Create Task" : "Save Changes" }}
                     </button>
                 </div>
+                <div class="modal-footer" v-show="deleteMode">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Close
+                    </button>
+                    <button
+                        type="button"
+                        @click="deleteTask"
+                        class="btn btn-primary"
+                    >
+                        Delete task
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -172,6 +215,7 @@ export default {
     data() {
         return {
             editMode: false,
+            deleteMode: false,
             taskData: {
                 id: "",
                 title: "",
@@ -201,6 +245,12 @@ export default {
                 .catch((errors) => {
                     console.log(errors);
                 });
+        },
+
+        removeTask(task) {
+            this.deleteMode = true;
+            this.taskData.id = task.id;
+            $("#taskModal").modal("show");
         },
 
         updateTask() {
@@ -242,14 +292,15 @@ export default {
             }
         },
         editTask(task) {
-            (this.editMode = true),
-                (this.taskData = {
-                    id: task.id,
-                    title: task.title,
-                    date: task.date,
-                    time: task.time,
-                    detail: task.detail,
-                });
+            this.deleteMode = false;
+            this.editMode = true;
+            this.taskData = {
+                id: task.id,
+                title: task.title,
+                date: task.date,
+                time: task.time,
+                detail: task.detail,
+            };
             this.taskErrors = {
                 title: false,
                 date: false,
@@ -259,14 +310,15 @@ export default {
             $("#taskModal").modal("show");
         },
         createTask() {
-            (this.editMode = false),
-                (this.taskData = {
-                    id: "",
-                    title: "",
-                    date: "",
-                    time: "",
-                    detail: "",
-                });
+            this.deleteMode = false;
+            this.editMode = false;
+            this.taskData = {
+                id: "",
+                title: "",
+                date: "",
+                time: "",
+                detail: "",
+            };
             this.taskErrors = {
                 title: false,
                 date: false,
