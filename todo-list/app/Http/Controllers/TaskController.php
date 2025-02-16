@@ -7,14 +7,27 @@ use App\Models\Task;
 
 class TaskController extends Controller
 {
-    public function storeTask(Request $request){
-        Task::create([
-            'title'         =>$request->title,
-            'date'          =>$request->date,
-            'time'          =>$request->time,
-            'detail'        =>$request->detail,
+    public function storeTask(Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'title'  => 'required|string|max:255',
+            'date'   => 'required|date',
+            'time'   => 'required',
+            'detail' => 'nullable|string',
         ]);
 
-        return response()->json('Tasked stored successfully');
+        // Store task
+        Task::create([
+            'title'  => $request->title,
+            'date'   => $request->date,
+            'time'   => $request->time,
+            'detail' => $request->detail,
+        ]);
+
+        return response()->json(['message' => 'Task stored successfully'], 201);
     }
 }
+
+
+

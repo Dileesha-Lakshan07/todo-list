@@ -167,12 +167,17 @@ export default {
                 this.taskData.time
             ) {
                 axios
-                    .post(window.url + "api/storeTask", this.taskData)
+                    .post("http://127.0.0.1:8000/api/storeTask", {
+                        title: this.taskData.title,
+                        date: this.taskData.date,
+                        time: this.taskData.time,
+                        detail: this.taskData.detail,
+                    })
                     .then((response) => {
                         console.log(response.data);
                     })
-                    .catch((errors) => {
-                        console.log(errors);
+                    .catch((error) => {
+                        console.error("Error:", error.response);
                     });
             }
         },
