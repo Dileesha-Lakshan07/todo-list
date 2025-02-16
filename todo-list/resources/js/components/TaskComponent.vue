@@ -45,13 +45,13 @@
                                     <td>
                                         <button
                                             @click="editTask(task)"
-                                            class="btn btn-primary btn-sm"
+                                            class="btn btn-primary btn-sm mx-1"
                                         >
                                             Edit
                                         </button>
                                         <button
                                             @click="removeTask(task)"
-                                            class="btn btn-danger btn-sm"
+                                            class="btn btn-danger btn-sm mx-1"
                                         >
                                             Delete
                                         </button>
@@ -244,6 +244,28 @@ export default {
                 })
                 .catch((errors) => {
                     console.log(errors);
+                });
+        },
+
+        deleteTask() {
+            axios
+                .post(
+                    "http://127.0.0.1:8000/api/deleteTask/" + this.taskData.id,
+                    {
+                        title: this.taskData.title,
+                        date: this.taskData.date,
+                        time: this.taskData.time,
+                        detail: this.taskData.detail,
+                    }
+                )
+                .then((response) => {
+                    this.getTask();
+                })
+                .catch((error) => {
+                    console.error("Error:", error.response);
+                })
+                .finally(() => {
+                    $("#taskModal").modal("hide");
                 });
         },
 

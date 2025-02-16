@@ -53,6 +53,11 @@ class TaskController extends Controller
 
         return response()->json(['message' => 'Task updated successfully'], 201);
     }
+
+    public function deleteTask($id){
+        Task::where('id', $id)->delete();
+        return response()->json(['message' => 'Task deleted successfully'], 201);
+    }
 }
 
 
