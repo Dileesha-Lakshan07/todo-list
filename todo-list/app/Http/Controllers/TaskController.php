@@ -32,6 +32,27 @@ class TaskController extends Controller
 
         return response()->json(['message' => 'Task stored successfully'], 201);
     }
+
+    public function updateTask(Request $request, $id)
+    {
+        // Validate request
+        $request->validate([
+            'title'  => 'required|string|max:255',
+            'date'   => 'required|date',
+            'time'   => 'required',
+            'detail' => 'nullable|string',
+        ]);
+
+        // Store task
+        Task::where('id', $id)->update([
+            'title'  => $request->title,
+            'date'   => $request->date,
+            'time'   => $request->time,
+            'detail' => $request->detail,
+        ]);
+
+        return response()->json(['message' => 'Task updated successfully'], 201);
+    }
 }
 
 

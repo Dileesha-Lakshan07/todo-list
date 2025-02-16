@@ -42,7 +42,14 @@
                                                   "..."
                                         }}
                                     </td>
-                                    <td></td>
+                                    <td>
+                                        <button
+                                            @click="editTask(task)"
+                                            class="btn btn-primary btn-sm"
+                                        >
+                                            Edit
+                                        </button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -64,7 +71,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="taskModalLabel">
-                        Create New Task
+                        {{ !editMode ? "Create New Task" : "Update Task" }}
                     </h1>
                     <button
                         type="button"
@@ -146,10 +153,10 @@
                     </button>
                     <button
                         type="button"
-                        @click="storeTask"
+                        @click="!editMode ? storeTask() : updateTask()"
                         class="btn btn-primary"
                     >
-                        Create Task
+                        {{ !editMode ? "Create Task" : "Save Changes" }}
                     </button>
                 </div>
             </div>
@@ -164,7 +171,9 @@ export default {
     }),
     data() {
         return {
+            editMode: false,
             taskData: {
+                id: "",
                 title: "",
                 date: "",
                 time: "",
@@ -193,13 +202,71 @@ export default {
                     console.log(errors);
                 });
         },
-        createTask() {
-            this.taskData = {
-                title: "",
-                date: "",
-                time: "",
-                detail: "",
+
+        updateTask() {
+            this.taskData.title == ""
+                ? (this.taskErrors.title = true)
+                : (this.taskErrors.title = false);
+            this.taskData.date == ""
+                ? (this.taskErrors.date = true)
+                : (this.taskErrors.date = false);
+            this.taskData.time == ""
+                ? (this.taskErrors.time = true)
+                : (this.taskErrors.time = false);
+
+            if (
+                this.taskData.title &&
+                this.taskData.date &&
+                this.taskData.time
+            ) {
+                axios
+                    .post(
+                        "http://127.0.0.1:8000/api/updateTask/" +
+                            this.taskData.id,
+                        {
+                            title: this.taskData.title,
+                            date: this.taskData.date,
+                            time: this.taskData.time,
+                            detail: this.taskData.detail,
+                        }
+                    )
+                    .then((response) => {
+                        this.getTask();
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error.response);
+                    })
+                    .finally(() => {
+                        $("#taskModal").modal("hide");
+                    });
+            }
+        },
+        editTask(task) {
+            (this.editMode = true),
+                (this.taskData = {
+                    id: task.id,
+                    title: task.title,
+                    date: task.date,
+                    time: task.time,
+                    detail: task.detail,
+                });
+            this.taskErrors = {
+                title: false,
+                date: false,
+                time: false,
             };
+
+            $("#taskModal").modal("show");
+        },
+        createTask() {
+            (this.editMode = false),
+                (this.taskData = {
+                    id: "",
+                    title: "",
+                    date: "",
+                    time: "",
+                    detail: "",
+                });
             this.taskErrors = {
                 title: false,
                 date: false,
@@ -232,7 +299,7 @@ export default {
                         detail: this.taskData.detail,
                     })
                     .then((response) => {
-                        console.log(response.data);
+                        this.getTask();
                     })
                     .catch((error) => {
                         console.error("Error:", error.response);
