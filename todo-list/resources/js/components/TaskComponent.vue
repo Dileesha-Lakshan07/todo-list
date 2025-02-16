@@ -17,6 +17,37 @@
                         </div>
                     </div>
                 </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table text-center">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>Date & Time</th>
+                                    <th>Detail</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(task, index) in tasks" :key="index">
+                                    <td>{{ index + 1 }}</td>
+                                    <td>{{ task.title }}</td>
+                                    <td>{{ task.date }} | {{ task.time }}</td>
+                                    <td>
+                                        {{
+                                            task.detail.length <= 10
+                                                ? task.detail
+                                                : task.detail.substr(0, 10) +
+                                                  "..."
+                                        }}
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -144,10 +175,37 @@ export default {
                 date: false,
                 time: false,
             },
+            tasks: {},
         };
     },
+    mounted() {
+        this.getTask();
+    },
     methods: {
+        getTask() {
+            axios
+                .get("http://127.0.0.1:8000/api/getTask")
+
+                .then((response) => {
+                    this.tasks = response.data;
+                })
+                .catch((errors) => {
+                    console.log(errors);
+                });
+        },
         createTask() {
+            this.taskData = {
+                title: "",
+                date: "",
+                time: "",
+                detail: "",
+            };
+            this.taskErrors = {
+                title: false,
+                date: false,
+                time: false,
+            };
+
             $("#taskModal").modal("show");
         },
         storeTask() {
@@ -178,6 +236,9 @@ export default {
                     })
                     .catch((error) => {
                         console.error("Error:", error.response);
+                    })
+                    .finally(() => {
+                        $("#taskModal").modal("hide");
                     });
             }
         },

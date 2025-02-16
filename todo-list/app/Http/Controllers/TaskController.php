@@ -7,6 +7,11 @@ use App\Models\Task;
 
 class TaskController extends Controller
 {
+    public function getTask(){
+        return response()->json(Task::latest()->get());
+    }
+
+
     public function storeTask(Request $request)
     {
         // Validate request
